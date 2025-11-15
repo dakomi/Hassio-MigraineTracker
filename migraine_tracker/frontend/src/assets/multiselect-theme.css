@@ -1,0 +1,30 @@
+/* multiselect-theme.css */
+
+.multiselect__input, .multiselect__single {
+  background-color: var(--elevation-2-color) !important;
+  color: var(--text-color) !important;
+}
+
+.multiselect__tags {
+  background-color: var(--elevation-2-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+}
+
+.multiselect__content-wrapper {
+  background-color: var(--elevation-1-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.multiselect__option--highlight {
+  background-color: var(--elevation-2-color) !important;
+}
+
+.multiselect__tag {
+  background-color: var(--elevation-2-color) !important;
+  color: var(--heading-color) !important;
+}
+
+.multiselect__tag-icon:hover {
+  background-color: var(--elevation-1-color) !important;
+}

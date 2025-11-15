@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+cryptography
+httpx
+python-multipart
+pandas
+pytest
+apscheduler

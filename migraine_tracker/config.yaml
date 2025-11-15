@@ -1,0 +1,20 @@
+name: "Migraine Tracker"
+description: "A comprehensive migraine tracking system with weather correlation capabilities."
+version: "0.1.0"
+slug: "migraine_tracker"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: "application"
+boot: "auto"
+ports:
+  "8000/tcp": 8000
+webui: "http://[HOST]:[PORT:8000]"
+hassio_api: true
+hassio_role: default
+options: {}
+schema: {}
