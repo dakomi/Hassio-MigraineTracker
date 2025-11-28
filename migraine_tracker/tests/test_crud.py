@@ -40,7 +40,6 @@ def test_get_or_create(db):
     assert location2.id == location.id
 
 
-@pytest.mark.asyncio
 async def test_create_migraine_event(db):
     migraine_data = schemas.MigraineEventCreate(
         start_time=datetime.now(),
@@ -60,7 +59,6 @@ async def test_create_migraine_event(db):
     assert db_migraine.symptoms[0].name == "Test Symptom"
 
 
-@pytest.mark.asyncio
 async def test_get_all_migraine_events(db):
     # Test with no events
     events = crud.get_all_migraine_events(db)
@@ -83,7 +81,6 @@ async def test_get_all_migraine_events(db):
     assert events[0].intensity == 7
 
 
-@pytest.mark.asyncio
 async def test_update_migraine_event(db):
     migraine_data = schemas.MigraineEventCreate(
         start_time=datetime.now(),
@@ -112,7 +109,6 @@ async def test_update_migraine_event(db):
     assert updated_migraine.symptoms[0].name == "New Symptom"
 
 
-@pytest.mark.asyncio
 async def test_delete_migraine_event(db):
     migraine_data = schemas.MigraineEventCreate(
         start_time=datetime.now(),
@@ -132,7 +128,6 @@ async def test_delete_migraine_event(db):
     assert len(events) == 0
 
 
-@pytest.mark.asyncio
 async def test_get_location(db):
     with patch('migraine_tracker.home_assistant.get_ha_config', return_value={"latitude": 12.34, "longitude": 56.78}):
         lat, lon = await crud.get_location(db)

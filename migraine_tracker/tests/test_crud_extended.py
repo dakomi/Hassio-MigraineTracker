@@ -1,6 +1,7 @@
 import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch
+import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -22,7 +23,6 @@ def db():
         db_session.close()
         Base.metadata.drop_all(bind=engine)
 
-@pytest.mark.asyncio
 async def test_get_location_with_ha_config(db):
     """ Test that get_location correctly returns coordinates from HA config. """
     mock_config = {"latitude": 34.0522, "longitude": -118.2437}
@@ -31,7 +31,6 @@ async def test_get_location_with_ha_config(db):
         assert lat == 34.0522
         assert lon == -118.2437
 
-@pytest.mark.asyncio
 async def test_get_location_without_ha_config(db):
     """ Test that get_location returns default coordinates when HA config is unavailable. """
     with patch('migraine_tracker.home_assistant.get_ha_config', return_value=None):
@@ -63,7 +62,6 @@ def test_get_or_create_trigger(db):
     trigger2 = crud.get_or_create(db, models.Trigger, name=trigger_name)
     assert trigger1.id == trigger2.id
 
-@pytest.mark.asyncio
 async def test_create_migraine_event_with_new_relations(db):
     """ Test creating a migraine event with new, nonexistent relations. """
     migraine_data = schemas.MigraineEventCreate(
@@ -84,13 +82,11 @@ async def test_create_migraine_event_with_new_relations(db):
         assert len(db_migraine.symptoms) == 2
         assert {s.name for s in db_migraine.symptoms} == {"Visual Snow", "Tinnitus"}
 
-@pytest.mark.asyncio
 async def test_get_migraine_event_not_found(db):
     """ Test that getting a nonexistent migraine event returns None. """
     event = crud.get_migraine_event(db, migraine_event_id=999)
     assert event is None
 
-@pytest.mark.asyncio
 async def test_update_migraine_event_time_change(db):
     """ Test that updating a migraine's time triggers a weather refetch. """
     start_time = datetime.now()
@@ -121,7 +117,6 @@ async def test_update_migraine_event_time_change(db):
         # Ensure weather was fetched again on update
         mock_get_weather.assert_called_once()
 
-@pytest.mark.asyncio
 async def test_delete_nonexistent_migraine_event(db):
     """ Test that deleting a nonexistent event returns None and doesn't fail. """
     with patch('migraine_tracker.home_assistant.update_ha_sensor', return_value=None) as mock_update_ha:
@@ -130,12 +125,12 @@ async def test_delete_nonexistent_migraine_event(db):
         # Ensure HA sensor update is still called to reflect the (non-)change
         mock_update_ha.assert_called_once()
 
-def test_get_all_helpers(db):
+async def test_get_all_helpers(db):
     """ Test the helper functions to get all pain locations, symptoms, and triggers. """
-    crud.get_or_create(db, models.PainLocation, name="Neck")
-    crud.get_or_create(db, models.Symptom, name="Fatigue")
-    crud.get_or_create(db, models.Trigger, name="Lack of Sleep")
-    db.commit()
+    await crud.get_or_create(db, models.PainLocation, name="Neck")
+    await crud.get_or_create(db, models.Symptom, name="Fatigue")
+    await crud.get_or_create(db, models.Trigger, name="Lack of Sleep")
+    await asyncio.to_thread(db.commit)
 
     assert len(crud.get_all_pain_locations(db)) == 1
     assert len(crud.get_all_symptoms(db)) == 1
