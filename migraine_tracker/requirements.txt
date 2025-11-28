@@ -6,4 +6,5 @@ httpx
 python-multipart
 pandas
 pytest
+pytest-asyncio
 apscheduler

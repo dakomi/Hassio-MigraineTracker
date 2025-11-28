@@ -15,19 +15,18 @@ async def get_location(db: Session):
         # Default to New York City if location is not available
         return 40.7128, -74.0060
 
-def get_or_create(db: Session, model, name: str):
+async def get_or_create(db: Session, model, name: str):
     """
     Helper function to get an existing object or create a new one if it
     doesn't exist.
     """
-    with db.no_autoflush:
-        instance = db.query(model).filter(model.name == name).first()
-        if instance:
-            return instance
-        else:
-            instance = model(name=name)
-            db.add(instance)
-            return instance
+    instance = await asyncio.to_thread(db.query(model).filter(model.name == name).first)
+    if instance:
+        return instance
+    else:
+        instance = model(name=name)
+        db.add(instance)
+        return instance
 
 
 async def create_migraine_event_with_weather(db: Session, migraine_event: schemas.MigraineEventCreate):
@@ -37,10 +36,10 @@ async def create_migraine_event_with_weather(db: Session, migraine_event: schema
     app_settings = settings.get_settings()
     latitude, longitude = await get_location(db)
 
-    pain_location = get_or_create(db, models.PainLocation, name=migraine_event.pain_location)
+    pain_location = await get_or_create(db, models.PainLocation, name=migraine_event.pain_location)
 
-    symptoms = [get_or_create(db, models.Symptom, name=symptom) for symptom in migraine_event.symptoms]
-    triggers = [get_or_create(db, models.Trigger, name=trigger) for trigger in migraine_event.triggers]
+    symptoms = [await get_or_create(db, models.Symptom, name=symptom) for symptom in migraine_event.symptoms]
+    triggers = [await get_or_create(db, models.Trigger, name=trigger) for trigger in migraine_event.triggers]
 
     db_migraine_event = models.MigraineEvent(
         start_time=migraine_event.start_time,
@@ -52,8 +51,8 @@ async def create_migraine_event_with_weather(db: Session, migraine_event: schema
         triggers=triggers,
     )
     db.add(db_migraine_event)
-    db.commit()
-    db.refresh(db_migraine_event)
+    await asyncio.to_thread(db.commit)
+    await asyncio.to_thread(db.refresh, db_migraine_event)
 
     # Fetch and store weather data
     start_fetch = db_migraine_event.start_time - timedelta(hours=app_settings.get("fetch_range_before", 3))
@@ -89,8 +88,8 @@ async def create_migraine_event_with_weather(db: Session, migraine_event: schema
             pollen_count=weather_data.pollen_count,
         )
         db.add(db_weather_data)
-        db.commit()
-        db.refresh(db_weather_data)
+        await asyncio.to_thread(db.commit)
+        await asyncio.to_thread(db.refresh, db_weather_data)
 
     # Update Home Assistant sensor
     all_migraines = get_all_migraine_events(db)
@@ -143,20 +142,20 @@ async def update_migraine_event_with_weather(
     db_migraine_event.notes = migraine_event.notes
 
     # Update the relationships
-    db_migraine_event.pain_location = get_or_create(
+    db_migraine_event.pain_location = await get_or_create(
         db, models.PainLocation, name=migraine_event.pain_location
     )
     db_migraine_event.symptoms = [
-        get_or_create(db, models.Symptom, name=symptom)
+        await get_or_create(db, models.Symptom, name=symptom)
         for symptom in migraine_event.symptoms
     ]
     db_migraine_event.triggers = [
-        get_or_create(db, models.Trigger, name=trigger)
+        await get_or_create(db, models.Trigger, name=trigger)
         for trigger in migraine_event.triggers
     ]
 
-    db.commit()
-    db.refresh(db_migraine_event)
+    await asyncio.to_thread(db.commit)
+    await asyncio.to_thread(db.refresh, db_migraine_event)
 
     # Re-fetch weather data if the time has changed
     if time_changed:
@@ -205,8 +204,8 @@ async def update_migraine_event_with_weather(
                 )
                 db.add(db_weather)
 
-            db.commit()
-            db.refresh(db_weather)
+            await asyncio.to_thread(db.commit)
+            await asyncio.to_thread(db.refresh, db_weather)
 
     # Update Home Assistant sensor
     all_migraines = get_all_migraine_events(db)
@@ -222,8 +221,8 @@ async def delete_migraine_event(db: Session, migraine_event_id: int):
     db_migraine_event = get_migraine_event(db, migraine_event_id)
 
     if db_migraine_event:
-        db.delete(db_migraine_event)
-        db.commit()
+        await asyncio.to_thread(db.delete, db_migraine_event)
+        await asyncio.to_thread(db.commit)
 
     # Update Home Assistant sensor regardless of whether an event was deleted
     all_migraines = get_all_migraine_events(db)

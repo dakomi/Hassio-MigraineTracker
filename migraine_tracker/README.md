@@ -54,13 +54,18 @@ The Migraine Tracker add-on is optimized for the Raspberry Pi 4B, but it should 
 
 To run the backend tests, you will need to have `pytest` installed and all the project dependencies available in your Python environment.
 
-1.  **Install Dependencies:**
+1.  **Navigate to the add-on directory:**
     ```bash
-    pip install -r migraine_tracker/requirements.txt
+    cd migraine_tracker
     ```
 
-2.  **Run Tests:**
-    From the root of the `migraine_tracker` directory, run the following command:
+2.  **Install Dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Run Tests:**
+    From within the `migraine_tracker` directory, run the following command:
     ```bash
     TEST_ENV=true python3 -m pytest
     ```
@@ -70,13 +75,17 @@ To run the backend tests, you will need to have `pytest` installed and all the p
 
 To run the frontend tests, you will need to have `vitest` and `jsdom` installed.
 
-1.  **Install Dependencies:**
+1.  **Navigate to the frontend directory:**
     ```bash
     cd migraine_tracker/frontend
+    ```
+
+2.  **Install Dependencies:**
+    ```bash
     npm install -D vitest jsdom @vitejs/plugin-vue @vue/test-utils
     ```
 
-2.  **Run Tests:**
+3.  **Run Tests:**
     From the `migraine_tracker/frontend` directory, run the following command:
     ```bash
     npm test
