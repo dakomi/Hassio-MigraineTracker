@@ -8,11 +8,11 @@ WORKDIR /usr/src/app
 RUN apk add --no-cache python3 py3-pip
 
 # Copy the requirements file and install dependencies
-COPY migraine_tracker/requirements.txt .
+COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the application code
-COPY migraine_tracker/ .
+COPY . .
 
 # Expose the port
 EXPOSE 8000
