@@ -56,11 +56,11 @@ To run the backend tests, you will need to have `pytest` installed and all the p
 
 1.  **Install Dependencies:**
     ```bash
-    pip install -r migraine_tracker/requirements.txt
+    pip install -r requirements.txt
     ```
 
 2.  **Run Tests:**
-    From the root of the `migraine_tracker` directory, run the following command:
+    From the root of the repository, run the following command:
     ```bash
     TEST_ENV=true python3 -m pytest
     ```
@@ -72,12 +72,12 @@ To run the frontend tests, you will need to have `vitest` and `jsdom` installed.
 
 1.  **Install Dependencies:**
     ```bash
-    cd migraine_tracker/frontend
+    cd frontend
     npm install -D vitest jsdom @vitejs/plugin-vue @vue/test-utils
     ```
 
 2.  **Run Tests:**
-    From the `migraine_tracker/frontend` directory, run the following command:
+    From the `frontend` directory, run the following command:
     ```bash
     npm test
     ```
